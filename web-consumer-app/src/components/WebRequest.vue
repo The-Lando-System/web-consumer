@@ -16,6 +16,12 @@
           <input type="text" style="width:20%" v-model="method"/>
         </div>
         <div class="row">
+          <h4>Post Body</h4>
+        </div>
+        <div class="row">
+          <textarea style="width:50%" rows="6" v-model="postBody"/>
+        </div>
+        <div class="row">
           <button v-on:click="submit">
             Submit
           </button>
@@ -43,15 +49,23 @@ export default {
     return {
       url: 'http://worldclockapi.com/api/json/est/now',
       method: 'Get',
+      postBody: '',
       responseMessage: ''
     }
   },
   methods: {
     submit: function() {
 
+      let reqBody = {};
+
+      try {
+        reqBody = JSON.parse(this.postBody);
+      } catch(e) {}
+
       let request = {
         "Url": this.url,
-	      "Method": this.method
+        "Method": this.method,
+        "RequestBody": reqBody
       };
 
       return this.$http.post("http://localhost:54846/request/submit", request)
@@ -80,6 +94,9 @@ export default {
   }
   .web-request-card input {
     margin-bottom: 20px;
+  }
+  .web-request-card button {
+    margin-top: 20px;
   }
   .results {
     border: solid 0.5px #e2e1e0;

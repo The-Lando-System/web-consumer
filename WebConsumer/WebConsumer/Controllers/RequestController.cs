@@ -29,5 +29,12 @@ namespace WebConsumer.Controllers
                 Data = responseData
             };
         }
+
+        [Route("post-test")]
+        [HttpPost]
+        public object PostTest([FromBody] object testBody)
+        {
+            return testBody;
+        }
     }
 }
