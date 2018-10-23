@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using WebConsumer.Models;
+using WebConsumer.Repositories;
 using WebConsumer.Services;
 
 namespace WebConsumer.Controllers
@@ -16,25 +17,28 @@ namespace WebConsumer.Controllers
     [RoutePrefix("request")]
     public class RequestController : ApiController
     {
+        private RequestRepository RequestRepo = new RequestRepository();
+
         [Route("submit")]
         [HttpPost]
-        public GenericResponse SubmitRequest([FromBody] Request request)
+        public IHttpActionResult SubmitRequest([FromBody] Request request)
         {
             var responseData = RequestExecutor.Execute(request);
 
-            return new GenericResponse
+            // TODO - Collect status and other info from the actual request in the executor
+            return Ok(new GenericResponse
             {
                 Status = HttpStatusCode.OK,
                 Message = "Successfully submitted request",
                 Data = responseData
-            };
+            });
         }
 
-        [Route("post-test")]
+        [Route("save")]
         [HttpPost]
-        public object PostTest([FromBody] object testBody)
+        public object SaveRequest([FromBody] Request request)
         {
-            return testBody;
+            return RequestRepo.Add(request);
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Web;
 namespace WebConsumer.Models
 {
     [DataContract]
-    public class Request
+    public class Request : MongoModel
     {
         [DataMember]
         public string Url { get; set; }
