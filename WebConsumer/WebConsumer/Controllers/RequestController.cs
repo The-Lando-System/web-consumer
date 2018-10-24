@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using WebConsumer.Filters;
 using WebConsumer.Models;
 using WebConsumer.Repositories;
 using WebConsumer.Services;
@@ -19,9 +20,9 @@ namespace WebConsumer.Controllers
     {
         private RequestRepository RequestRepo = new RequestRepository();
 
-        [Route("submit")]
+        [Route("execute")]
         [HttpPost]
-        public IHttpActionResult SubmitRequest([FromBody] Request request)
+        public IHttpActionResult ExecuteRequest([FromBody] Request request)
         {
             var responseData = RequestExecutor.Execute(request);
 
@@ -34,11 +35,64 @@ namespace WebConsumer.Controllers
             });
         }
 
-        [Route("save")]
+        [Route("")]
         [HttpPost]
-        public object SaveRequest([FromBody] Request request)
+        [RequestValidator]
+        public IHttpActionResult SaveRequest([FromBody] Request request)
         {
-            return RequestRepo.Add(request);
+            if (RequestRepo.FindByProperty("Name", request.Name) != null)
+            {
+                return BadRequest($"Request with name [{request.Name}] already exists");
+            }
+
+            Request createdRequest = null;
+
+            try
+            {
+                createdRequest = RequestRepo.Add(request);
+            }
+            catch (Exception e)
+            {
+                Exception exception = new Exception("Failed to save new request", e);
+                return InternalServerError(exception);
+            }
+
+            if (createdRequest == null)
+            {
+                Exception exception = new Exception("Failed to save new request");
+                return InternalServerError(exception);
+            }
+
+            return Ok(createdRequest);
+        }
+
+        [Route("")]
+        [HttpGet]
+        public IHttpActionResult GetAllRequests()
+        {
+            return Ok(RequestRepo.FindAll());
+        }
+
+        [Route("{id}")]
+        [HttpGet]
+        public IHttpActionResult GetRequestById(string id)
+        {
+            return Ok(RequestRepo.FindById(id));
+        }
+
+        [Route("{id}")]
+        [HttpDelete]
+        public IHttpActionResult DeleteRequest(string id)
+        {
+            return Ok(RequestRepo.Delete(id));
+        }
+
+        [Route("{id}")]
+        [HttpPut]
+        [RequestValidator]
+        public IHttpActionResult EditRequest(string id, [FromBody] Request request)
+        {
+            return Ok(RequestRepo.Update(id, request));
         }
     }
 }
