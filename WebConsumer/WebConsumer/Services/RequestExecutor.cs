@@ -13,7 +13,7 @@ namespace WebConsumer.Services
 {
     public class RequestExecutor
     {
-        public static object Execute(Request request)
+        public static GenericResponse Execute(Request request)
         {
             var req = (HttpWebRequest)WebRequest.Create(request.Url);
             req.Method = request.Method.ToString().ToUpper();
@@ -21,9 +21,8 @@ namespace WebConsumer.Services
             if (request.Method.Equals(Method.Post))
             {
                 var data = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(request.RequestBody));
-
             
-                req.ContentType = "application/json";
+                req.ContentType = req.ContentType ?? "application/json";
                 req.ContentLength = data.Length;
 
                 using (var stream = req.GetRequestStream())
@@ -32,8 +31,34 @@ namespace WebConsumer.Services
                 }
             }
 
-            var response = (HttpWebResponse)req.GetResponse();
-            return new StreamReader(response.GetResponseStream()).ReadToEnd();
+            GenericResponse genericResponse = new GenericResponse();
+            HttpWebResponse response = null;
+
+            try
+            {
+                response = (HttpWebResponse)req.GetResponse();
+
+                genericResponse.Status = response.StatusCode;
+                genericResponse.ContentType = response.ContentType;
+                genericResponse.Data = new StreamReader(response.GetResponseStream()).ReadToEnd();
+            }
+            catch (Exception e)
+            {
+                if (e is WebException webException)
+                {
+                    var exResponse = (HttpWebResponse)webException.Response;
+                    genericResponse.Status = exResponse.StatusCode;
+                    genericResponse.ContentType = exResponse.ContentType;
+                    genericResponse.Data = new StreamReader(exResponse.GetResponseStream()).ReadToEnd();
+                }
+                else
+                {
+                    genericResponse.Status = HttpStatusCode.InternalServerError;
+                    genericResponse.Message = e.Message;
+                }
+            }
+
+            return genericResponse;
         }
 
     }

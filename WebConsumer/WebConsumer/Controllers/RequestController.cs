@@ -1,10 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Web;
+﻿using System;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using WebConsumer.Filters;
@@ -22,17 +16,25 @@ namespace WebConsumer.Controllers
 
         [Route("execute")]
         [HttpPost]
+        [RequestValidator]
         public IHttpActionResult ExecuteRequest([FromBody] Request request)
         {
-            var responseData = RequestExecutor.Execute(request);
+            return Ok(RequestExecutor.Execute(request));
+        }
 
-            // TODO - Collect status and other info from the actual request in the executor
-            return Ok(new GenericResponse
+        [Route("execute/{id}")]
+        [HttpPost]
+        [RequestValidator]
+        public IHttpActionResult ExecuteStoredRequest(string id)
+        {
+            Request request = RequestRepo.FindById(id);
+
+            if (request == null)
             {
-                Status = HttpStatusCode.OK,
-                Message = "Successfully submitted request",
-                Data = responseData
-            });
+                return BadRequest($"Could not find a stored request with ID of [{id}]");
+            }
+
+            return Ok(RequestExecutor.Execute(request));
         }
 
         [Route("")]

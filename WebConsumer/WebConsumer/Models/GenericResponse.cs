@@ -17,6 +17,9 @@ namespace WebConsumer.Models
         public HttpStatusCode Status { get; set; }
 
         [DataMember]
+        public string ContentType { get; set; }
+
+        [DataMember]
         public string Message { get; set; }
 
         [DataMember]
