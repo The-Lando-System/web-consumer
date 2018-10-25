@@ -12,8 +12,6 @@
           <input v-model="url" type="text" class="form-control" id="url-input" placeholder="https://example.com">
         </div>
         <div class="form-group">
-          <!-- <label for="method-input">Method</label>
-          <input v-model="method" type="text" class="form-control" id="method-input" placeholder="Get, Post, Delete, etc."> -->
           <label for="method-input">Request Method</label>
           <select v-model="method" id="method-input" class="custom-select">
             <option value="Get">Get</option>
@@ -29,7 +27,7 @@
     </div>
 
     <div class="col-md-6">
-      <results v-bind:responseMessage="responseMessage" />
+      <results v-bind:response="response" />
     </div>
     
   </div>
@@ -48,7 +46,7 @@ export default {
       url: 'http://worldclockapi.com/api/json/est/now',
       method: 'Get',
       postBody: '',
-      responseMessage: ''
+      response: {}
     }
   },
   methods: {
@@ -75,8 +73,9 @@ export default {
 
       return this.$http.post("http://localhost:54846/request/execute", request)
       .then(response => {
-        if (response.data.hasOwnProperty('Data')) {
-          this.responseMessage = JSON.stringify(JSON.parse(response.data['Data']),undefined,2).trim();
+        this.response = response.data;
+        if (this.response.hasOwnProperty('Data')){
+          this.response['Data'] = JSON.stringify(JSON.parse(this.response['Data']),undefined,2).trim();
         }
       });
     }
