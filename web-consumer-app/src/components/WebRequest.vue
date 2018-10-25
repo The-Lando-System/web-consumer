@@ -1,40 +1,37 @@
 <template>
-  <div class="container">
-    
-    <div class="row">
-      <div class="col web-request-card">
-        <div class="row">
-          <h4>Url</h4>
+
+  <div class="row">
+    <div class="col-md-6">
+      <form class="web-request-card">
+        <div class="form-group">
+          <label for="name-input">Name</label>
+          <input v-model="name" type="text" class="form-control" id="name-input" placeholder="Name your request">
         </div>
-        <div class="row">
-          <input type="text" style="width:80%" v-model="url"/>
+        <div class="form-group">
+          <label for="url-input">URL</label>
+          <input v-model="url" type="text" class="form-control" id="url-input" placeholder="https://example.com">
         </div>
-        <div class="row">
-          <h4>Method</h4>
+        <div class="form-group">
+          <!-- <label for="method-input">Method</label>
+          <input v-model="method" type="text" class="form-control" id="method-input" placeholder="Get, Post, Delete, etc."> -->
+          <label for="method-input">Request Method</label>
+          <select v-model="method" id="method-input" class="custom-select">
+            <option value="Get">Get</option>
+            <option value="Post">Post</option>
+          </select>
         </div>
-        <div class="row">
-          <input type="text" style="width:20%" v-model="method"/>
+        <div class="form-group">
+          <label for="body-input">Body</label>
+          <textarea v-model="postBody" class="form-control" id="body-input" rows="5" placeholder="{some:json}" />
         </div>
-        <div class="row">
-          <h4>Post Body</h4>
-        </div>
-        <div class="row">
-          <textarea style="width:50%" rows="6" v-model="postBody"/>
-        </div>
-        <div class="row">
-          <button v-on:click="submit">
-            Submit
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <div class="row" style="margin-top: 30px; margin-bottom: 30px;">
-      <div class="col results">
-        <results v-bind:responseMessage="responseMessage" />
-      </div>
+        <button v-on:click="submit" class="btn btn-primary">Execute</button>
+      </form>
     </div>
 
+    <div class="col-md-6">
+      <results v-bind:responseMessage="responseMessage" />
+    </div>
+    
   </div>
 </template>
 
@@ -47,6 +44,7 @@ export default {
   },
   data: function() {
     return {
+      name: 'My Request',
       url: 'http://worldclockapi.com/api/json/est/now',
       method: 'Get',
       postBody: '',
@@ -56,19 +54,26 @@ export default {
   methods: {
     submit: function() {
 
+      event.preventDefault();
+
       let reqBody = {};
 
-      try {
-        reqBody = JSON.parse(this.postBody);
-      } catch(e) {}
+      if (this.postBody){
+        try {
+          reqBody = JSON.parse(this.postBody);
+        } catch(e) {
+          return;
+        }
+      }
 
       let request = {
+        "Name": this.name,
         "Url": this.url,
         "Method": this.method,
         "RequestBody": reqBody
       };
 
-      return this.$http.post("http://localhost:54846/request/submit", request)
+      return this.$http.post("http://localhost:54846/request/execute", request)
       .then(response => {
         if (response.data.hasOwnProperty('Data')) {
           this.responseMessage = JSON.stringify(JSON.parse(response.data['Data']),undefined,2).trim();
@@ -82,26 +87,13 @@ export default {
 
 <style>
   .web-request-card {
-    margin-top: 30px;
-    padding-top: 20px;
-    padding-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 20px;
     border: solid 0.5px #e2e1e0;
     border-radius: 2px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   }
-  .web-request-card .row {
-    margin-left: 20px;
-  }
-  .web-request-card input {
-    margin-bottom: 20px;
-  }
-  .web-request-card button {
-    margin-top: 20px;
-  }
-  .results {
-    border: solid 0.5px #e2e1e0;
-    border-radius: 2px;
-    text-align: left;
-    padding: 20px;
+  .custom-select {
   }
 </style>

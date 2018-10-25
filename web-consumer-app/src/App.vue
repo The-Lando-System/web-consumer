@@ -1,6 +1,14 @@
 <template>
   <div id="app">
-    <web-request/>
+    <div class="container-fluid">
+      <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+          <h1 class="display-4">Web Consumer</h1>
+          <p class="lead">Submit web requests to various APIs and save them for later...</p>
+        </div>
+      </div>
+      <web-request/>
+    </div>
   </div>
 </template>
 
