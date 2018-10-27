@@ -17,24 +17,25 @@
           <form class="web-request-form">
             <div class="form-group">
               <label for="name-input">Name</label>
-              <input v-model="name" type="text" class="form-control" id="name-input" placeholder="Name your request">
+              <input v-model="request.Name" type="text" class="form-control" id="name-input" placeholder="Name your request">
             </div>
             <div class="form-group">
               <label for="url-input">URL</label>
-              <input v-model="url" type="text" class="form-control" id="url-input" placeholder="https://example.com">
+              <input v-model="request.Url" type="text" class="form-control" id="url-input" placeholder="https://example.com">
             </div>
             <div class="form-group">
               <label for="method-input">Request Method</label>
-              <select v-model="method" id="method-input" class="custom-select">
+              <select v-model="request.Method" id="method-input" class="custom-select">
                 <option value="Get">Get</option>
                 <option value="Post">Post</option>
               </select>
             </div>
             <div class="form-group">
               <label for="body-input">Body</label>
-              <textarea v-model="postBody" class="form-control" id="body-input" rows="5" placeholder="{some:json}" />
+              <textarea v-model="request.RequestBody" class="form-control" id="body-input" rows="5" placeholder="{some:json}" />
             </div>
             <button v-on:click="submit" class="btn btn-primary">Execute</button>
+            <button v-on:click="save" style="float:right" class="btn btn-info">Save</button>
           </form>
         </div>
         
@@ -67,6 +68,12 @@ export default {
   },
   data: function() {
     return {
+      request: {
+        'Name':'My Request',
+        'Url':'http://worldclockapi.com/api/json/est/now',
+        'Method':'Get',
+        'RequestBody':''
+      },
       name: 'My Request',
       url: 'http://worldclockapi.com/api/json/est/now',
       method: 'Get',
@@ -75,7 +82,8 @@ export default {
       formMode: true,
       activeButtonIndex: 0,
       activeRequest: {},
-      savedRequests: []
+      savedRequests: [],
+      requestUrl: 'http://localhost:54846/request'
     }
   },
   computed: {
@@ -89,15 +97,25 @@ export default {
     this.getSavedRequests();
   },
   methods: {
+    save: function() {
+      event.preventDefault();
+      console.log("saving request");
+      return this.$http.post(this.requestUrl, this.request)
+      then(response => {
+        console.log(response);
+      });
+    },
     getSavedRequests: function() {
       console.log("getting requests");
-      return this.$http.get("http://localhost:54846/request/")
+      return this.$http.get(this.requestUrl)
       .then(response => {
         this.savedRequests = response.data;
       });
     },
     submitWithId: function(id) {
-      return this.$http.post(`http://localhost:54846/request/execute/${id}`, {})
+      event.preventDefault();
+      console.log("executing request");
+      return this.$http.post(`${this.requestUrl}/execute/${id}`, {})
       .then(response => {
         this.response = response.data;
         if (this.response.hasOwnProperty('Data')){
@@ -106,27 +124,16 @@ export default {
       });
     },
     submit: function() {
-
       event.preventDefault();
-
-      let reqBody = {};
-
-      if (this.postBody){
+      if (this.request.RequestBody){
         try {
-          reqBody = JSON.parse(this.postBody);
+          this.request.RequestBody = JSON.parse(this.request.RequestBody);
         } catch(e) {
           return;
         }
       }
 
-      let request = {
-        "Name": this.name,
-        "Url": this.url,
-        "Method": this.method,
-        "RequestBody": reqBody
-      };
-
-      return this.$http.post("http://localhost:54846/request/execute", request)
+      return this.$http.post(`${this.requestUrl}/execute`, this.request)
       .then(response => {
         this.response = response.data;
         if (this.response.hasOwnProperty('Data')){
