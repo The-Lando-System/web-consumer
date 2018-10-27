@@ -20,7 +20,11 @@
 
 <script>
 export default {
-  props: ['response'],
+  data: function() {
+    return {
+      response: {}
+    }
+  },
   computed: {
     responseStatus: function () {
       return {
@@ -28,6 +32,11 @@ export default {
         'warn': this.response.Status === 'BadRequest'
       }
     }
+  },
+  mounted: function() {
+    this.$broadcaster.on('executedRequest', (data) => {
+      this.response = data;
+    });
   }
 }
 </script>

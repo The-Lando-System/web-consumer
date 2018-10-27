@@ -14,7 +14,8 @@
         </ul>
 
         <div v-if="formMode">
-          <form class="web-request-form">
+          <request-form/>
+          <!-- <form class="web-request-form">
             <div class="form-group">
               <label for="name-input">Name</label>
               <input v-model="request.Name" type="text" class="form-control" id="name-input" placeholder="Name your request">
@@ -36,7 +37,7 @@
             </div>
             <button v-on:click="submit" class="btn btn-primary">Execute</button>
             <button v-on:click="save" style="float:right" class="btn btn-info">Save</button>
-          </form>
+          </form> -->
         </div>
         
         <div v-else>
@@ -53,7 +54,7 @@
     </div>
 
     <div class="col-md-6">
-      <results v-bind:response="response" />
+      <results />
     </div>
     
   </div>
@@ -61,10 +62,13 @@
 
 <script>
 import Results from './Results.vue';
+import RequestForm from './RequestForm.vue';
+//import Events from '../Events.js';
 
 export default {
   components: {
-    Results
+    Results,
+    RequestForm
   },
   data: function() {
     return {
@@ -95,6 +99,9 @@ export default {
   },
   created: function () {
     this.getSavedRequests();
+    this.$broadcaster.on('executedRequest', (data) => {
+      this.response = data;
+    });
   },
   methods: {
     save: function() {
