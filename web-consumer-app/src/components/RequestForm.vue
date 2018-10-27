@@ -28,7 +28,6 @@
 export default {
   data: function() {
     return {
-      requestUrl: 'http://localhost:54846/request',
       request: {
         'Name':'My Request',
         'Url':'http://worldclockapi.com/api/json/est/now',
@@ -40,10 +39,9 @@ export default {
   methods: {
     save: function() {
       event.preventDefault();
-      console.log("saving request");
-      return this.$http.post(this.requestUrl, this.request)
-      then(response => {
-        console.log(response);
+      this.$requestSvc.save(this.$http, this.request)
+      .then((response) => {
+        this.$broadcaster.emit('executedRequest', response);
       });
     },
     submit: function() {
@@ -56,12 +54,9 @@ export default {
         }
       }
 
-      return this.$http.post(`${this.requestUrl}/execute`, this.request)
-      .then(response => {
-        if (response.data.hasOwnProperty('Data')){
-          response.data['Data'] = JSON.stringify(JSON.parse(response.data['Data']),undefined,2).trim();
-          this.$broadcaster.emit('executedRequest', response.data);
-        }
+      this.$requestSvc.submit(this.$http, this.request)
+      .then((response) => {
+        this.$broadcaster.emit('executedRequest', response);
       });
     }
   }
@@ -69,5 +64,7 @@ export default {
 </script>
 
 <style>
-
+.web-request-form {
+  margin-top: 20px;
+}
 </style>
