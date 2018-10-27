@@ -14,7 +14,7 @@
         </ul>
 
         <div v-if="formMode">
-          <form style="margin-top: 20px;">
+          <form class="web-request-form">
             <div class="form-group">
               <label for="name-input">Name</label>
               <input v-model="name" type="text" class="form-control" id="name-input" placeholder="Name your request">
@@ -39,12 +39,15 @@
         </div>
         
         <div v-else>
-          Hello!
+          <div class="saved-requests-area">
+            <div class="list-group">
+              <a href="javascript:void(0);" v-for="(request, index) in savedRequests" v-bind:key="request.Name" v-bind:class="activeButtonIndex === index ? 'active' : ''" v-on:click="activeButtonIndex = index; activeRequest = request;" class="list-group-item list-group-item-action">{{request.Name}}</a>
+            </div>
+            <button v-on:click="submit()" class="btn btn-primary">Execute</button>
+          </div>
         </div>
 
       </div>
-
-      
       
     </div>
 
@@ -69,10 +72,39 @@ export default {
       method: 'Get',
       postBody: '',
       response: {},
-      formMode: true
+      formMode: true,
+      activeButtonIndex: 0,
+      activeRequest: {},
+      savedRequests: []
     }
   },
+  computed: {
+    activeTab: function(index) {
+      return {
+        'active':  index == this.activeButtonIndex
+      }
+    }
+  },
+  created: function () {
+    this.getSavedRequests();
+  },
   methods: {
+    getSavedRequests: function() {
+      console.log("getting requests");
+      return this.$http.get("http://localhost:54846/request/")
+      .then(response => {
+        this.savedRequests = response.data;
+      });
+    },
+    submitWithId: function(id) {
+      return this.$http.post(`http://localhost:54846/request/execute/${id}`, {})
+      .then(response => {
+        this.response = response.data;
+        if (this.response.hasOwnProperty('Data')){
+          this.response['Data'] = JSON.stringify(JSON.parse(this.response['Data']),undefined,2).trim();
+        }
+      });
+    },
     submit: function() {
 
       event.preventDefault();
@@ -117,11 +149,24 @@ export default {
     box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
     min-height: 400px;
   }
-  .web-request-card .nav-item {
+  .web-request-card .nav-item,
+  button {
     cursor: pointer;
   }
   .active {
     font-weight: bold;
   }
-
+  .web-request-form {
+    margin-top: 20px;
+  }
+  .saved-requests-area {
+    margin-top: 20px;
+  }
+  .saved-requests-area button {
+    margin-top: 20px;
+  }
+  .list-group {
+    max-height: 400px;
+    overflow: auto;
+  }
 </style>
