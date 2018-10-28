@@ -1,5 +1,6 @@
 <template>
 <div class="saved-requests-area">
+  <div v-if="loading"><i class="fas fa-2x fa-circle-notch fa-spin"></i></div>
   <div class="list-group">
     <a href="javascript:void(0);" class="list-group-item list-group-item-action"
        v-for="(request, index) in savedRequests"
@@ -19,7 +20,8 @@ export default {
     return {
       activeButtonIndex: 0,
       activeRequest: {},
-      savedRequests: []
+      savedRequests: [],
+      loading: false
     }
   },
   computed: {
@@ -34,8 +36,10 @@ export default {
   },
   methods: {
     getSavedRequests: function() {
+      this.loading = true;
       this.$requestSvc.getSavedRequests(this.$http)
       .then(response => {
+        this.loading = false;
         this.savedRequests = response;
         if (this.savedRequests && this.savedRequests.length > 0) {
           this.activeRequest = this.savedRequests[0];
@@ -44,7 +48,8 @@ export default {
     },
     submitSelectedRequest: function() {
       event.preventDefault();
-      this.$requestSvc.submitRequestById(this.$http, this.activeRequest.Id)
+      this.$broadcaster.emit('beginLoading', {});
+      this.$requestSvc.submit(this.$http, this.activeRequest)
       .then(response => {
         this.$broadcaster.emit('executedRequest', response);
       });

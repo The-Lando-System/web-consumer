@@ -6,13 +6,17 @@
           <span><b>Status: </b></span>
           <span v-bind:class="responseStatus">{{response.Status || "N/A"}}</span>
         </div>
-        <div class="col-sm-8">
+        <div class="col-sm-7">
           <span><b>Content Type: </b></span>
           <span>{{response.ContentType || "N/A"}}</span>
+        </div>
+        <div class="col-sm-1">
+          <i v-on:click="clearResults" id="clear-icon" class="fas fa-times"></i>
         </div>
       </div>
     </div>
     <div ref="resultsPane" class="result-data-pane">
+      <div v-if="loading" class="loading"><i class="fas fa-2x fa-circle-notch fa-spin"></i></div>
       <pre>{{response.Data}}</pre>
       <iframe id="results-iframe"></iframe>
     </div>
@@ -24,7 +28,8 @@ export default {
   data: function() {
     return {
       response: {},
-      isHtml: false
+      isHtml: false,
+      loading: false,
     }
   },
   computed: {
@@ -38,6 +43,9 @@ export default {
   },
   mounted: function() {
     this.$broadcaster.on('executedRequest', (data) => {
+
+      this.loading = false;
+
       this.response = data;
 
       var iframe = this.$refs.resultsPane.querySelector("#results-iframe");
@@ -54,6 +62,18 @@ export default {
       }
 
     });
+
+    this.$broadcaster.on('beginLoading', () => {
+      this.clearResults();
+      this.loading = true;
+    });
+  },
+  methods: {
+    clearResults: function() {
+      this.response = {};
+      var iframe = this.$refs.resultsPane.querySelector("#results-iframe");
+      iframe.style.display = 'none';
+    }
   }
 }
 </script>
@@ -94,6 +114,14 @@ export default {
   display: none;
   height: 100%;
   width: 100%;
+}
+
+#clear-icon {
+  cursor: pointer;
+}
+
+.loading {
+  text-align: center;
 }
 
 </style>

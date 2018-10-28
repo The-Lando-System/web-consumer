@@ -41,11 +41,12 @@ export default {
       event.preventDefault();
       this.$requestSvc.save(this.$http, this.request)
       .then((response) => {
-        this.$broadcaster.emit('executedRequest', response);
+        this.$broadcaster.emit('savedRequest', response);
       });
     },
     submit: function() {
       event.preventDefault();
+      this.$broadcaster.emit('beginLoading', {});
       if (this.request.RequestBody){
         try {
           this.request.RequestBody = JSON.parse(this.request.RequestBody);

@@ -34,6 +34,11 @@ export default {
     return {
       formMode: true
     }
+  },
+  mounted: function() {
+    this.$broadcaster.on('savedRequest', () => {
+      this.formMode = false;
+    });
   }
 }
 
