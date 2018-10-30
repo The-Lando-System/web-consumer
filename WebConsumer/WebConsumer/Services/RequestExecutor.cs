@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +20,7 @@ namespace WebConsumer.Services
             var req = (HttpWebRequest)WebRequest.Create(request.Url);
             req.Method = request.Method.ToString().ToUpper();
 
-            if (request.Method.Equals(Method.Post))
+            if (request.Method.Equals(Models.Method.Post))
             {
                 var data = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(request.RequestBody));
             
@@ -29,6 +31,25 @@ namespace WebConsumer.Services
                 {
                     stream.Write(data, 0, data.Length);
                 }
+            }
+
+            if (request.AuthType.Equals(AuthType.OAuth2))
+            {
+                var client = new RestClient(request.AuthUrl);
+                var authRequest = new RestRequest(RestSharp.Method.POST);
+                authRequest.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                var encodedAuth = Encoding.UTF8.GetBytes($"{request.ApiKey}:{request.ApiSecret}");
+                authRequest.AddHeader("Authorization", $"Basic {Convert.ToBase64String(encodedAuth)}");
+
+                authRequest.AddParameter("undefined", "grant_type=client_credentials", ParameterType.RequestBody);
+
+                IRestResponse authResponse = client.Execute(authRequest);
+                var authData = (JObject)JsonConvert.DeserializeObject(authResponse.Content);
+
+                string accessToken = authData["access_token"].Value<string>();
+
+                req.Headers["Authorization"] = $"Bearer {accessToken}";
             }
 
             GenericResponse genericResponse = new GenericResponse();

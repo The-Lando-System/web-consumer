@@ -27,11 +27,30 @@ namespace WebConsumer.Models
         
         [DataMember]
         public string ContentType { get; set; }
+
+        [DataMember]
+        [JsonConverter(typeof(StringEnumConverter))]
+        public AuthType AuthType { get; set; }
+
+        [DataMember]
+        public string AuthUrl { get; set; }
+
+        [DataMember]
+        public string ApiKey { get; set; }
+
+        [DataMember]
+        public string ApiSecret { get; set; }
     }
 
     public enum Method
     {
         Get,
         Post
+    }
+
+    public enum AuthType
+    {
+        None = 0,
+        OAuth2
     }
 }
