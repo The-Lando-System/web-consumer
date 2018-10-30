@@ -15,10 +15,32 @@
       <option value="Post">Post</option>
     </select>
   </div>
-  <div class="form-group">
+  <div v-if="request.Method === 'Post'" class="form-group sub-group">
     <label for="body-input">Body</label>
     <textarea v-model="request.RequestBody" class="form-control" id="body-input" rows="5" placeholder="{some:json}" />
   </div>
+  <div class="form-group">
+    <label for="auth-input">Authentication</label>
+    <select v-model="request.AuthType" id="auth-input" class="custom-select">
+      <option value="">None</option>
+      <option value="OAuth2">OAuth 2</option>
+    </select>
+  </div>
+  
+  <!-- Auth Inputs -->
+  <div v-if="request.AuthType === 'OAuth2'" class="form-group sub-group">
+    <label for="authurl-input">Auth URL</label>
+    <input v-model="request.AuthUrl" type="text" class="form-control" id="authurl-input" placeholder="https://example.com">
+  </div>
+  <div v-if="request.AuthType === 'OAuth2'" class="form-group sub-group">
+    <label for="apikey-input">API Key</label>
+    <input v-model="request.ApiKey" type="text" class="form-control" id="apikey-input" placeholder="Api Key">
+  </div>
+  <div v-if="request.AuthType === 'OAuth2'" class="form-group sub-group">
+    <label for="apisecret-input">API Secret</label>
+    <input v-model="request.ApiSecret" type="text" class="form-control" id="apisecret-input" placeholder="Api Secret">
+  </div>
+
   <button v-on:click="submit" class="btn btn-primary">Execute</button>
   <button v-on:click="save" style="float:right" class="btn btn-info">Save</button>
 </form>
@@ -32,7 +54,8 @@ export default {
         'Name':'My Request',
         'Url':'http://worldclockapi.com/api/json/est/now',
         'Method':'Get',
-        'RequestBody':''
+        'RequestBody':'',
+        'AuthType':''
       }
     }
   },
@@ -67,5 +90,8 @@ export default {
 <style>
 .web-request-form {
   margin-top: 20px;
+}
+.sub-group {
+  margin-left: 30px;
 }
 </style>

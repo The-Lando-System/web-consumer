@@ -38,6 +38,7 @@ export default {
         'ok': this.response.Status === 'OK',
         'warn': this.response.Status === 'BadRequest'
              || this.response.Status === 'NotFound'
+             || this.response.Status === 'MethodNotAllowed'
       }
     }
   },
