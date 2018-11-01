@@ -17,12 +17,12 @@
   </div>
   <div v-if="request.Method === 'Post'" class="form-group sub-group">
     <label for="body-input">Body</label>
-    <textarea v-model="request.RequestBody" class="form-control" id="body-input" rows="5" placeholder="{some:json}" />
+    <textarea v-model="requestBody" class="form-control" id="body-input" rows="5" placeholder="{some:json}" />
   </div>
   <div class="form-group">
     <label for="auth-input">Authentication</label>
     <select v-model="request.AuthType" id="auth-input" class="custom-select">
-      <option value="">None</option>
+      <option value="None">None</option>
       <option value="OAuth2">OAuth 2</option>
     </select>
   </div>
@@ -55,13 +55,15 @@ export default {
         'Url':'http://worldclockapi.com/api/json/est/now',
         'Method':'Get',
         'RequestBody':'',
-        'AuthType':''
-      }
+        'AuthType':'None'
+      },
+      requestBody: ''
     }
   },
   methods: {
     save: function() {
       event.preventDefault();
+      this.request.RequestBody = this.requestBody;
       this.$requestSvc.save(this.$http, this.request)
       .then((response) => {
         this.$broadcaster.emit('savedRequest', response);
@@ -70,9 +72,9 @@ export default {
     submit: function() {
       event.preventDefault();
       this.$broadcaster.emit('beginLoading', {});
-      if (this.request.RequestBody){
+      if (this.requestBody){
         try {
-          this.request.RequestBody = JSON.parse(this.request.RequestBody);
+          this.request.RequestBody = JSON.parse(this.requestBody);
         } catch(e) {
           return;
         }

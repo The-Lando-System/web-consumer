@@ -17,25 +17,29 @@ namespace WebConsumer.Services
     {
         public static GenericResponse Execute(Request request)
         {
-            var req = (HttpWebRequest)WebRequest.Create(request.Url);
-            req.Method = request.Method.ToString().ToUpper();
+            var client = new RestClient(request.Url);
+            RestRequest req = null;
+
+            switch (request.Method)
+            {
+                case Models.Method.Post:
+                    req = new RestRequest(RestSharp.Method.POST);
+                    break;
+                case Models.Method.Get:
+                    req = new RestRequest(RestSharp.Method.GET);
+                    break;
+            }
 
             if (request.Method.Equals(Models.Method.Post))
             {
                 var data = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(request.RequestBody));
-            
-                req.ContentType = req.ContentType ?? "application/json";
-                req.ContentLength = data.Length;
-
-                using (var stream = req.GetRequestStream())
-                {
-                    stream.Write(data, 0, data.Length);
-                }
+                req.AddHeader("Content-Type", request.ContentType ?? "application/json");
+                req.AddParameter("undefined", data, ParameterType.RequestBody);
             }
 
             if (request.AuthType.Equals(AuthType.OAuth2))
             {
-                var client = new RestClient(request.AuthUrl);
+                var authClient = new RestClient(request.AuthUrl);
                 var authRequest = new RestRequest(RestSharp.Method.POST);
                 authRequest.AddHeader("Content-Type", "application/x-www-form-urlencoded");
 
@@ -44,24 +48,23 @@ namespace WebConsumer.Services
 
                 authRequest.AddParameter("undefined", "grant_type=client_credentials", ParameterType.RequestBody);
 
-                IRestResponse authResponse = client.Execute(authRequest);
+                IRestResponse authResponse = authClient.Execute(authRequest);
                 var authData = (JObject)JsonConvert.DeserializeObject(authResponse.Content);
 
                 string accessToken = authData["access_token"].Value<string>();
 
-                req.Headers["Authorization"] = $"Bearer {accessToken}";
+                req.AddHeader("Authorization", $"Bearer {accessToken}");
             }
 
             GenericResponse genericResponse = new GenericResponse();
-            HttpWebResponse response = null;
 
             try
             {
-                response = (HttpWebResponse)req.GetResponse();
+                IRestResponse response = client.Execute(req);
 
                 genericResponse.Status = response.StatusCode;
                 genericResponse.ContentType = response.ContentType;
-                genericResponse.Data = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                genericResponse.Data = response.Content;
             }
             catch (Exception e)
             {
