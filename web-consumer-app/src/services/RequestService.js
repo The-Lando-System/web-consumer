@@ -2,6 +2,17 @@ export default {
   
   requestUrl : 'http://localhost:54846/request',
   
+  update(http, request) {
+    return new Promise((resolve,reject) => {
+      http.put(`${this.requestUrl}/${request.Id}`, request)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+    }); 
+  },
   save(http, request) {
     return new Promise((resolve,reject) => {
       http.post(this.requestUrl, request)

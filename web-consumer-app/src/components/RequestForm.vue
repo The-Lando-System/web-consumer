@@ -17,7 +17,7 @@
   </div>
   <div v-if="request.Method === 'Post'" class="form-group sub-group">
     <label for="body-input">Body</label>
-    <textarea v-model="requestBody" class="form-control" id="body-input" rows="5" placeholder="{some:json}" />
+    <textarea v-model="request.RequestBody" class="form-control" id="body-input" rows="5" placeholder="{some:json}" />
   </div>
   <div class="form-group">
     <label for="auth-input">Authentication</label>
@@ -40,52 +40,12 @@
     <label for="apisecret-input">API Secret</label>
     <input v-model="request.ApiSecret" type="text" class="form-control" id="apisecret-input" placeholder="Api Secret">
   </div>
-
-  <button v-on:click="submit" class="btn btn-primary">Execute</button>
-  <button v-on:click="save" style="float:right" class="btn btn-info">Save</button>
 </form>
 </template>
 
 <script>
 export default {
-  data: function() {
-    return {
-      request: {
-        'Name':'My Request',
-        'Url':'http://worldclockapi.com/api/json/est/now',
-        'Method':'Get',
-        'RequestBody':'',
-        'AuthType':'None'
-      },
-      requestBody: ''
-    }
-  },
-  methods: {
-    save: function() {
-      event.preventDefault();
-      this.request.RequestBody = this.requestBody;
-      this.$requestSvc.save(this.$http, this.request)
-      .then((response) => {
-        this.$broadcaster.emit('savedRequest', response);
-      });
-    },
-    submit: function() {
-      event.preventDefault();
-      this.$broadcaster.emit('beginLoading', {});
-      if (this.requestBody){
-        try {
-          this.request.RequestBody = JSON.parse(this.requestBody);
-        } catch(e) {
-          return;
-        }
-      }
-
-      this.$requestSvc.submit(this.$http, this.request)
-      .then((response) => {
-        this.$broadcaster.emit('executedRequest', response);
-      });
-    }
-  }
+  props: ['request']
 }
 </script>
 

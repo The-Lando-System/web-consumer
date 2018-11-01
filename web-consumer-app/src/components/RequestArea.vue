@@ -11,7 +11,7 @@
   </ul>
 
   <div v-if="formMode">
-    <request-form/>
+    <new-request/>
   </div>
   
   <div v-else>
@@ -22,12 +22,12 @@
 </template>
 
 <script>
-import RequestForm from './RequestForm.vue';
+import NewRequest from './NewRequest.vue';
 import RequestList from './RequestList.vue';
 
 export default {
   components: {
-    RequestForm,
+    NewRequest,
     RequestList
   },
   data: function() {
