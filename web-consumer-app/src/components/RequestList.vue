@@ -46,13 +46,9 @@ export default {
   mounted: function () {
     this.getSavedRequests();
 
-    this.$broadcaster.on('updatedRequest', () => {
+    this.$broadcaster.on('navToList', () => {
       this.editMode = false;
       this.getSavedRequests();
-    });
-
-    this.$broadcaster.on('backToList', () => {
-      this.editMode = false;
     });
   },
   methods: {

@@ -2,6 +2,17 @@ export default {
   
   requestUrl : 'http://localhost:54846/request',
   
+  remove(http, id) {
+    return new Promise((resolve,reject) => {
+      http.delete(`${this.requestUrl}/${id}`)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+    }); 
+  },
   update(http, request) {
     return new Promise((resolve,reject) => {
       http.put(`${this.requestUrl}/${request.Id}`, request)
