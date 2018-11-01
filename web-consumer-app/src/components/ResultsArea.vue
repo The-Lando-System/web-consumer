@@ -17,7 +17,7 @@
     </div>
     <div ref="resultsPane" class="result-data-pane">
       <div v-if="loading" class="loading"><i class="fas fa-2x fa-circle-notch fa-spin"></i></div>
-      <pre>{{response.Data}}</pre>
+      <pre id="results-pre">{{response.Data}}</pre>
       <iframe id="results-iframe"></iframe>
     </div>
   </div>
@@ -106,14 +106,14 @@ export default {
   padding: 20px;
   border: solid 0.5px #e2e1e0;
   border-radius: 2px;
-  max-height: 500px;
-  height: 500px;
+  max-height: 400px;
+  height: 400px;
   overflow: auto;
 }
 
 #results-iframe {
   display: none;
-  height: 100%;
+  height: 90%;
   width: 100%;
 }
 
@@ -123,6 +123,10 @@ export default {
 
 .loading {
   text-align: center;
+}
+
+#results-pre {
+  overflow: unset;
 }
 
 </style>

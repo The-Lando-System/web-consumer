@@ -1,7 +1,8 @@
 <template>
 <div>
   <request-form v-bind:request="request" />
-  <button v-on:click="update" class="btn btn-info">Update</button>
+  <button v-on:click="goBack" class="btn btn-outline-secondary">Back</button>
+  <button v-on:click="update" style="float:right" class="btn btn-info">Update</button>
 </div>
 </template>
 
@@ -20,6 +21,9 @@ export default {
       .then((response) => {
         this.$broadcaster.emit('updatedRequest', response);
       });
+    },
+    goBack: function() {
+      this.$broadcaster.emit('backToList',{});
     }
   }
 }
