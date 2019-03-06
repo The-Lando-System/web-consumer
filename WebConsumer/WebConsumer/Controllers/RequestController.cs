@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using WebConsumer.Filters;
@@ -42,7 +43,7 @@ namespace WebConsumer.Controllers
         [RequestValidator]
         public IHttpActionResult SaveRequest([FromBody] Request request)
         {
-            if (RequestRepo.FindByProperty("Name", request.Name) != null)
+            if (RequestRepo.FindAllByProperty(new Dictionary<string, string> { { "Name", request.Name } }) != null)
             {
                 return BadRequest($"Request with name [{request.Name}] already exists");
             }
